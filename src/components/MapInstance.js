@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import ReactMapGL , { Source, Layer , Popup} from 'react-map-gl';
+import ReactMapGL , { Source, Layer , Popup, useControl , FullscreenControl} from 'react-map-gl';
+import { myConfig } from "../config.js";
 
 
 function MapInstance() {
@@ -15,7 +16,7 @@ function MapInstance() {
 
       const [viewport, setViewport] = useState({
         width: '100vw',
-        height: '100vh',
+        height: '50vh',
         longitude: -76.534293,
         latitude: 3.372799,
         zoom: 15,});
@@ -43,7 +44,7 @@ function MapInstance() {
         console.log(selectedPoints)
 
       }}
-      mapboxAccessToken='pk.eyJ1IjoiaGlkZXJicmFuZG9uIiwiYSI6ImNsZHl1c3FqODB1eWQzb253c2x6cjlmMW0ifQ.evK8D5KqO4eFlp4vomMvNQ'
+      mapboxAccessToken= {myConfig.mapboxToken} 
       initialViewState={{
           longitude: -76.534293,
           latitude: 3.372799,
@@ -53,6 +54,7 @@ function MapInstance() {
       mapStyle="mapbox://styles/mapbox/streets-v9"
       onViewportChange={(viewport) => setViewport(viewport)}
     >
+    
     
     <Source id="my-data" type="geojson" data={lineData}>
         <Layer
