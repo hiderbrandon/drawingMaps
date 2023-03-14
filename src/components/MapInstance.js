@@ -1,41 +1,52 @@
 import { useEffect, useState } from 'react';
-import Map , { Source, Layer , FullscreenControl} from 'react-map-gl';
+import Map , { useControl, Source, Layer , FullscreenControl} from 'react-map-gl';
+import MapboxDraw from '@mapbox/mapbox-gl-draw';
 import { myConfig } from "../config.js";
+import lineOffset from '@turf/line-offset';
+import { lineString } from '@turf/helpers';
+import { getCoords } from '@turf/invariant';
 
 const TOKEN = myConfig.mapboxToken;
 
 function MapInstance() {
-   
-  const [selectedPoints, setSelectedPoints] = useState([]);
+  
+  const [drawingMode, setDrawingMode] = useState("line");
+
+  const [selectedPoints, setSelectedPoints] = useState([  ]);
    
   const [lineData, setLineData] = useState({
         type: 'Feature',
         geometry: {
           type: 'LineString',
-          coordinates: [] // coordenadas de la línea
+          coordinates: [[-76.534293,3.372799] , [-76.6,3.38]] // coordenadas de la línea
         }
       });
+  const [offsetLine, setOffsetLine] = useState(null);
+
+  useEffect(() => {
+    if (lineData) {
+      const offset = lineOffset(lineData, 0.01, { units: 'kilometers' });
+      setOffsetLine(offset);
+    }
+  }, [lineData]);
+
 
 
   useEffect(() => {
         if (selectedPoints.length > 0 ) {
-          const newLineData = {
-            type: 'Feature',
-            geometry: {
-              type: 'LineString',
-              coordinates: selectedPoints.map((point) => [point.lng, point.lat])
-            }
-          };
-          setLineData(newLineData);
+          const line = lineString(selectedPoints.map(p => [p.lng, p.lat]), { "stroke": "#F00" });
+          
         }
       }, [selectedPoints]);
   
   const handleClick = (event) => {
-    const { lngLat } = event;
-    setSelectedPoints([...selectedPoints, lngLat]);
-    console.log(selectedPoints)
+        if (drawingMode === 'line') {
+          const { lngLat } = event;
+          setSelectedPoints([...selectedPoints, lngLat]);
+          console.log(selectedPoints);
+        }
+      };
 
-  }
 
   return (
    <div>
@@ -65,6 +76,16 @@ function MapInstance() {
           }}
         />
     </Source>
+    <Source type="geojson" data={offsetLine}>
+            <Layer
+              id="offset-line"
+              type="line"
+              paint={{
+                'line-color': '#d703fc',
+                'line-width': 5,
+              }}
+            />
+          </Source>
 
     
     </Map>
