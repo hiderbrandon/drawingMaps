@@ -10,37 +10,34 @@ const TOKEN = myConfig.mapboxToken;
 
 function MapInstance() {
 
-  const [drawingMode, setDrawingMode] = useState("line");
-
-  const [selectedPoints, setSelectedPoints] = useState([[-76.534293, 3.372799], [-76.6, 3.38]]);
+  const [selectedPoints, setSelectedPoints] = useState([]);
+  const [offsetLine, setOffsetLine] = useState(null);
+  const [line, setLine] = useState(null);
 
   const [lineData, setLineData] = useState({
     type: 'Feature',
     geometry: {
       type: 'LineString',
-      coordinates: [[-76.534293, 3.372799], [-76.6, 3.38]] // coordenadas de la línea
+      coordinates: [] // coordenadas de la línea
     }
   });
-  const [offsetLine, setOffsetLine] = useState(null);
-  const [line, setLine] = useState(null);
 
   useEffect(() => {
-    if (lineData) {
-      const offset = lineOffset(lineData, 0.01, { units: 'kilometers' });
+    if (selectedPoints.length >2) {
+      const offset = lineOffset(line, 0.01, { units: 'kilometers' });
       setOffsetLine(offset);
     }
   }, [lineData, selectedPoints]);
 
   useEffect(() => {
-    if (selectedPoints.length > 0) {
+    if (selectedPoints.length >=2) {
       const line = lineString(selectedPoints.map(p => [p.lng, p.lat]), { "stroke": "#F00" });
       setLine(line);
     }
   }, [selectedPoints]);
 
-  /*
   useEffect(() => {
-    if (selectedPoints.length > 0 ) {
+    if (selectedPoints.length > 0) {
       const newLineData = {
         type: 'Feature',
         geometry: {
@@ -51,13 +48,13 @@ function MapInstance() {
       setLineData(newLineData);
     }
   }, [selectedPoints]);
-   */
-  const handleClick = (event) => {
-      const { lngLat } = event;
-      setSelectedPoints([...selectedPoints, [lngLat.lng, lngLat.lat]]);
-      console.log(selectedPoints);
-  };
 
+  const handleClick = (event) => {
+    const { lngLat } = event;
+    setSelectedPoints([...selectedPoints, lngLat]);
+    console.log(selectedPoints)
+
+  }
 
   return (
     <div>
@@ -76,10 +73,11 @@ function MapInstance() {
         <FullscreenControl></FullscreenControl>
 
 
-        <Source type="geojson" data={lineData}>
+        <Source id="my-data" type="geojson" data={lineData}>
           <Layer
             id="line-layer"
             type="line"
+            source="my-data"
             paint={{
               'line-color': '#f00',
               'line-width': 2
@@ -96,7 +94,7 @@ function MapInstance() {
             }}
           />
         </Source>
-
+        
 
       </Map>
 
@@ -106,4 +104,3 @@ function MapInstance() {
 }
 
 export default MapInstance;
-
