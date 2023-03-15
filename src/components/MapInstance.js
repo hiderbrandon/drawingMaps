@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import Map, { useControl, Source, Layer, FullscreenControl } from 'react-map-gl';
-import MapboxDraw from '@mapbox/mapbox-gl-draw';
 import { myConfig } from "../config.js";
 import lineOffset from '@turf/line-offset';
 import { lineString } from '@turf/helpers';
